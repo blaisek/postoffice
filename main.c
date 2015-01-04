@@ -17,7 +17,7 @@
  * DEFINES
  */
 #define BANK_INIT_BALANCE 10000
-#define NUM_CLIENTS 6
+#define NUM_CLIENTS 20
 #define TRANS_TAXES 2
 #define TRANS_MAX 50
 #define TRANS_MIN 5
@@ -120,6 +120,13 @@ int getRand(int min, int max){
  * @param amount int: amount given
  */
 void transaction(int from, int to, int amount){
+
+	/**
+	 * We cannot give money to ourselves, so in that case let's give it to the one after that
+	 */
+	
+	if(from == to && to < NUM_CLIENTS) to++;
+	if(from == to && to == NUM_CLIENTS) to--;
 
 	printf("client n°%i has %i in his account\n", to, d[to]->balance);
 	/**
