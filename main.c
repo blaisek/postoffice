@@ -308,12 +308,13 @@ void* robin_routine(void *arg){
 			printf("\x1b[1;32mI'm working \x1b[0m\n");
 			
 			/**
-			 * Robin chooses a client to steal from
+			 * Robin chooses a client to steal from, quits if no clients left
 			 */
 			int gotClient = 0; // flag
 			int client_id; // The ID of the client Robin will choose
 
 			while(gotClient != 1){
+				if( clients_still_there == 0 ) return NULL;
 				client_id = getRand(0, NUM_CLIENTS);
 				if(d[client_id]->outside == 1) gotClient = 1;
 			}
