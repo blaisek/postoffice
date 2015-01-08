@@ -89,6 +89,9 @@ post_office *poste;
 // Global variable which will be decremented everytime a client has done all his transactions
 int clients_still_there;
 
+// Global variable which will contain the amount of money distributed at the beginning
+int given;
+
 /**
  * Determines if Robin has stolen or not
  * @return [description]
@@ -125,8 +128,8 @@ void transaction(int from, int to, int amount){
 	 * We cannot give money to ourselves, so in that case let's give it to the one after that
 	 */
 	
-	if(from == to && to < NUM_CLIENTS) to++;
-	if(from == to && to == NUM_CLIENTS) to--;
+	if(from == to && to < (NUM_CLIENTS - 1)) to++;
+	if(from == to && to >= NUM_CLIENTS) to--;
 
 	printf("client n°%i has %i in his account\n", to, d[to]->balance);
 	/**
@@ -400,6 +403,7 @@ void* robin_routine(void *arg){
 			if( rob->balance > 5 ){
 				printf("\x1b[1;32mRobin drinks a beer \x1b[0m\n");
 				rob->balance = rob->balance - 5;
+				given -= 5;
 				printf("\x1b[1;32mRobin has %i$ left \x1b[0m\n", rob->balance);
 			} else {
 				printf("\x1b[1;32mRobin is broke, needs to work\x1b[0m\n");
@@ -419,8 +423,27 @@ void* robin_routine(void *arg){
 	return NULL;
 }
 
+/**
+ * Adds up all the money present in the simulation for proofing
+ * @param  robBal Robin's balance
+ * @return        Total money present at that point in the simulation
+ */
+int calc_money(int robBal){
 
+	int amount = 0;
+	amount += poste->bankVal;
 
+	for(int i=0; i<NUM_CLIENTS; i++){
+		amount += d[i]->balance;
+	};
+
+	amount += robBal;
+
+	printf("We gave %i $ and %i is still here.\n", given, amount);
+
+	return amount;
+
+}
 
 
 /**
@@ -457,11 +480,18 @@ int main( int argc, char **argv ){
 	
 	srand( time( NULL ) );
 
+	given = BANK_INIT_BALANCE;
+
 	for( int i=0; i<NUM_CLIENTS; i++ ){
 		/**
 		 * Random balance
 		 */
 		int bal = ( rand() %  ( WEALTH_MAX - WEALTH_MIN ) ) + WEALTH_MIN;
+
+		/**
+		 * Record how much money is distributed
+		 */
+		given += bal;
 
 		d[i] = malloc( sizeof (client) );
 
@@ -497,11 +527,12 @@ int main( int argc, char **argv ){
 	    pthread_join( clients[j], NULL );
 	}
 
+	/**
+	 * Verify total balance to make sure none of the money has disappeared
+	 */
+	calc_money(rob->balance);
 
-	
-		
-
-
+	printf("\x1b[1;31mSimulation finished.\x1b[0m\n");
 
 	/**
 	 * Free memory
