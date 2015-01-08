@@ -499,12 +499,16 @@ int main( int argc, char **argv ){
 		d[i]->id = i;
 		d[i]->emprunt = 0;
 		d[i]->outside = 1; // Client starts outside
+	}
 
-		if( pthread_create( &clients[i], NULL, client_routine, d[i]) != 0 ){
+	for( int j=0; j<NUM_CLIENTS; j++ ){
+		if( pthread_create( &clients[j], NULL, client_routine, d[j]) != 0 ){
 			printf( "Something went wrong\n" );
         	return EXIT_FAILURE;
 		}
 	}
+
+
 	/**
 	 * Robinhood's initialisation
 	 */
